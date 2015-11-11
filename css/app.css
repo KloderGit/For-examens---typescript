@@ -1,0 +1,48 @@
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.c-day:hover {
+    background-color:bisque;
+}
+
+.c-grid > .selected {
+    background-color: brown;
+    color: white;
+}
+
+#allTimes, #append_interval {
+    display:none;
+}
+
+#allTimes {
+    margin-top:20px;
+}
+
+#range_error {
+    color: red;
+}
+
+#event_info_wrapper {
+    display: table;
+}
+
+#other_date, #rangeComplit, #event_button {
+    display: table-cell;
+    padding-left: 50px;
+}
+
+#OneOrMore {
+    margin: 0 0 30px 30px;
+    display: list-item;
+}
+
+#event_step2, #event_step3 {
+    margin-left:60px;
+    display: list-item;
+}
+
+#event_step3 {
+    margin-top: 30px;
+    margin-left: 60px;
+}

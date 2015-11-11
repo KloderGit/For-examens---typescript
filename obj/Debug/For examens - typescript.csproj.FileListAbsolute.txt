@@ -1,0 +1,12 @@
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\bin\For examens - typescript.dll.config
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\bin\For examens - typescript.dll
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\bin\For examens - typescript.pdb
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\obj\Debug\For examens - typescript.csprojResolveAssemblyReference.cache
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\obj\Debug\For examens - typescript.dll
+c:\users\-kloder-\documents\visual studio 2013\Projects\For examens - typescript\obj\Debug\For examens - typescript.pdb
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\bin\For examens - typescript.dll.config
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\bin\For examens - typescript.dll
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\bin\For examens - typescript.pdb
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\obj\Debug\For examens - typescript.dll
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\obj\Debug\For examens - typescript.pdb
+C:\Users\Kloder\Documents\Visual Studio 2015\Projects\For examens - typescript\obj\Debug\For examens - typescript.csprojResolveAssemblyReference.cache
