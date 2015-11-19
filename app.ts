@@ -4,7 +4,6 @@ class CreateExamen {
     predmet: number;
     date: Date;
     event_range: Array<time_for_event>;
-    event_key: string;
     current_item: time_for_event;
 
     convert_date(year, mounth, day) { return new Date(year, mounth, day); }
@@ -27,11 +26,26 @@ class CreateExamen {
         this.current_item.time_to.setHours(to_array[0]);
         this.current_item.time_to.setMinutes(to_array[1]);
 
-        this.event_key = "" + this.current_item.time_from.getTime() + this.current_item.time_to.getTime();
+        this.current_item.event_key = "" + this.current_item.time_from.getTime() + "-" + this.current_item.time_to.getTime();
     }
 
     event_apply() {
-        this.event_range[this.event_key] = this.copy_event_to_array(this.current_item, new time_for_event());
+
+        //    Обнуление времени
+        $("#addRange").find(".input-time").each(function () {
+            $(this).val("");
+        });
+        //    Обнуление блоков с выбором
+        $("#event_wrapper").empty();
+
+        if (this.current_item.multi_students) {
+            this.event_range[this.current_item.event_key] = this.copy_event_to_array(this.current_item, new time_for_event());
+            this.print_range(this.current_item);
+            this.current_item = null;
+        }
+        else {
+            $("#range_error").text("Hfp,bnm?").fadeIn().fadeOut(3000);
+        }        
         this.show_save();
     }
 
@@ -42,6 +56,20 @@ class CreateExamen {
         return new_item;
     }
 
+    print_range(time: time_for_event) {
+        $("#rangeComplit ul").append("<li data-key='" + this.current_item.event_key + "'>" +
+            time.time_from.getHours() + " : " +
+            (time.time_from.getMinutes() < 10 ? "0" + time.time_from.getMinutes() : time.time_from.getMinutes()) +
+            " — " +
+            time.time_to.getHours() + " : " + (time.time_to.getMinutes() < 10 ? "0" + time.time_to.getMinutes() : time.time_to.getMinutes()) +
+            " | " +
+            "Экзамен для " +
+            (time.multi_students ? time.how_multi_student : "1") +
+            " студента\\ов" +
+            "</li>");
+    }
+
+    //  Кнопка Сохранить все диапазоны
     show_save() {
         if (Object.keys(this.event_range).length) {
             $("#append_interval").fadeIn();
@@ -58,7 +86,7 @@ class CreateExamen {
         //this.current_item.time_from.getMinutes() + raznica;
 
         while (this.current_item.time_from.getTime() <= this.current_item.time_to.getTime()) {
-            this.event_range[this.event_key] = this.copy_event_to_array(this.current_item, new time_for_event());
+            this.event_range[this.current_item.event_key] = this.copy_event_to_array(this.current_item, new time_for_event());
             this.current_item.time_from.setMinutes(this.current_item.time_from.getMinutes() + raznica);
         }
     }
@@ -99,6 +127,8 @@ class time_for_event {
     time_to: Date;
     multi_students: boolean;
     how_multi_student: number;
+    how_range_time: number;
+    event_key: string;
 }
 
 enum Mounth { "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря" };
@@ -177,7 +207,7 @@ window.onload = () => {
                     '<div id="howstudentinvite">' +
                     '<p>Сколько студентов может записаться на заданое время?</p>' +
                         '<input type="text" class="selecthowstudent" /> <span> — Заполните поле</span>' +
-                        '<p id="save_interval">Добавить время</p>' +
+                        '<p id="save_interval">Создать время</p>' +
                     '</div>' +
                 '</div>'
             );
@@ -186,14 +216,19 @@ window.onload = () => {
             $("#event_step2").remove();
             wrapper.append(
                 '<div id="event_step2">' +
-                '<div id="divide">' +
-                '<p>Разбить указаное время можно на количество студентов, которое вы хотите принять, либо на заданые промежутки времени.</p>' +
-                '<label><input class="radiodivideone" value="kolvo" type="radio" name="radiodivide" /> - Указать количество  </label>' +
-                '<label><input class="radiodivideone" value="prom" type="radio" name="radiodivide" /> - Разбить на равные промежутки </label>' +
+                '<div id="kolvo_minut">' +
+                '<p>Сколько минут длится один экзамен?</p>' +
+                '<input type="text" class="kolvo_minut" /> <span> — Заполните поле</span>' +
+                '<p id="save_interval">Создать время</p>' +
                 '</div>' +
                 '</div>'
             );
         } 
+    });
+
+    $(wrapper).on("keyup", "#kolvo_minut input", function () {
+        $(this).parent().find("span").fadeOut();
+        Item.current_item.how_range_time = parseInt($(this).val());
     });
 
     $(wrapper).on("keyup", "#howstudentinvite input", function () {
@@ -201,61 +236,21 @@ window.onload = () => {
         Item.current_item.how_multi_student = parseInt($(this).val());
     });
 
-    $(wrapper).on("change", "#divide .radiodivideone", function () {
-        if ($(this).val() == 'kolvo') {
-            $("#event_step3").remove();
-            $(this).parent().parent().append(
-                '<div id="event_step3">' +
-                '<label><input id="kolvo_student" value="" type="text" name="kolvo_student" /> - Введите количество студентов  </label>' +
-                '<p id="save_interval">Добавить время</p>' +
-                '</div>'
-            );
-        }
-        if ($(this).val() == 'prom') {
-            $("#event_step3").remove();
-            $(this).parent().parent().append(
-                '<div id="event_step3">' +
-                '<label><input id="prom_time" value="" type="text" name="prom_time" /> - Введите количество минут одного экзамена </label>' +
-                '</div>'
-            );
-        }
-    });
-
     $(wrapper).on("click", "#save_interval", function () {
-
-        if (!(Item.event_key in Item.event_range)) {        // Защита от 2го сохранения. Если такое время уже добавлено, то сообщение об этом...
+       
             if (Item.current_item.multi_students) {
                 if (Item.current_item.how_multi_student) {
-                    $("#addRange").find(".input-time").each(function () {
-                        $(this).val("");
-                    });
                     Item.event_apply();
-                    wrapper.empty();
-
-                    $("#rangeComplit ul").append("<li data-key='" + Item.event_key + "'>" +
-                        Item.current_item.time_from.getHours() + " : " +
-                        (Item.current_item.time_from.getMinutes() < 10 ? "0" + Item.current_item.time_from.getMinutes() : Item.current_item.time_from.getMinutes()) +
-                        " — " +
-                        Item.current_item.time_to.getHours() + " : " + (Item.current_item.time_to.getMinutes() < 10 ? "0" + Item.current_item.time_to.getMinutes() : Item.current_item.time_to.getMinutes()) +
-                        " | " +
-                        "Экзамен для " +
-                        (Item.current_item.multi_students ? Item.current_item.how_multi_student : "1") +
-                        " студента\\ов" +
-                        "</li>");
                 } else {
                     $("#range_error").text("Укажите количество студентов").fadeIn().fadeOut(3000);
                 }
             } else {
-                var students = parseInt($("#kolvo_student").val());
-                if (students > 0) {
-                    wrapper.append("OOOOOOOOOOOOO");
-                    Item.divide_range(students);
+                if (Item.current_item.how_range_time) {
+                    Item.event_apply();
                 } else {
-                    $("#range_error").text("Укажите, сколько студентов для этого промежутка?").fadeIn().fadeOut(3000);
+                    $("#range_error").text("Укажите, сколько длится (min) один экзамен?").fadeIn().fadeOut(3000);
                 }
             }
-        } else {
-            $("#range_error").text("Это время уже добавлено в список").fadeIn().fadeOut(3000);
-        }
+
     });
 };
