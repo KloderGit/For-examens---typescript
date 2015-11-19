@@ -192,6 +192,30 @@ window.onload = () => {
             } else {
                 $("#range_error").text("Время окончания раньше чем время начала").fadeIn();
             }
+
+            if (Object.keys(Item.event_range).length > 0) {
+
+                //  Врямя временного элемента
+                var aaa = Item.current_item.time_from.getTime();
+                var bbb = Item.current_item.time_to.getTime();                
+
+                for (var key in Item.event_range) {
+
+                    //  Время элемента из массива добавленных (готовых) диапазонов
+                    var aaa1 = Item.event_range[key].time_from.getTime();
+                    var bbb1 = Item.event_range[key].time_to.getTime();
+
+                    //  Определение на пересечения
+                    if (
+                        ( aaa <= aaa1  &&  (bbb > aaa1 || bbb > bbb1) ) || 
+                        ( (aaa < bbb1 || aaa< aaa1)  &&  bbb >= bbb1) ||
+                        (aaa == aaa1 && bbb == bbb1)
+                    )
+                    { $("#range_error").text("Внимание! Пересечение временных диапазонов с уже создаными промежутками.").fadeIn().fadeOut(3000); }
+                }
+
+                
+            }
         }
     });
 
