@@ -44,6 +44,7 @@ class CreateExamen {
             this.current_item = null;
         }
         else {
+            
             $("#range_error").text("Hfp,bnm?").fadeIn().fadeOut(3000);
         }        
         this.show_save();
@@ -89,6 +90,35 @@ class CreateExamen {
             this.event_range[this.current_item.event_key] = this.copy_event_to_array(this.current_item, new time_for_event());
             this.current_item.time_from.setMinutes(this.current_item.time_from.getMinutes() + raznica);
         }
+    }
+
+    chek_times(time_start: Date, time_end: Date) {
+
+        var error: boolean = true;  //      Проверка времени, первое меньше второго, затем на пересечение с временем которое есть в массиве диапазонов на пересечение.
+                                    //      error по умолчанию - true, если находится косяк то устанавливается в false
+
+        if (time_start.getTime() > time_end.getTime()) {
+            error = false;
+        }
+        else if (Object.keys(this.event_range).length > 0) {
+            for (var key in this.event_range) {
+
+                //  Время элемента из массива добавленных (готовых) диапазонов
+                var aaa1 = this.event_range[key].time_from.getTime();
+                var bbb1 = this.event_range[key].time_to.getTime();
+
+                //  Определение на пересечения
+                if (
+                    (time_start.getTime() <= aaa1 && (time_end.getTime() > aaa1 || time_end.getTime() > bbb1)) ||
+                    ((time_start.getTime() < bbb1 || time_start.getTime() < aaa1) && time_end.getTime() >= bbb1) ||
+                    (time_start.getTime() == aaa1 && time_end.getTime() == bbb1)
+                ) {
+                    error = false;
+                } 
+            }
+        }
+
+        return error;
     }
 
 
@@ -178,7 +208,7 @@ window.onload = () => {
             var item = $(this).parent().find(".input-time");
             Item.create_event(item);    // Создание временного экзамена
 
-            if (Item.current_item.time_from.getTime() < Item.current_item.time_to.getTime()) {
+            if (Item.chek_times(Item.current_item.time_from, Item.current_item.time_to)) {
                 $("#range_error").text("").fadeOut();
                 $(wrapper).append(
                     "<div id='OneOrMore'>"+
@@ -190,34 +220,11 @@ window.onload = () => {
                     "</div>"
                 );
             } else {
-                $("#range_error").text("Время окончания раньше чем время начала").fadeIn();
-            }
-
-            if (Object.keys(Item.event_range).length > 0) {
-
-                //  Врямя временного элемента
-                var aaa = Item.current_item.time_from.getTime();
-                var bbb = Item.current_item.time_to.getTime();                
-
-                for (var key in Item.event_range) {
-
-                    //  Время элемента из массива добавленных (готовых) диапазонов
-                    var aaa1 = Item.event_range[key].time_from.getTime();
-                    var bbb1 = Item.event_range[key].time_to.getTime();
-
-                    //  Определение на пересечения
-                    if (
-                        ( aaa <= aaa1  &&  (bbb > aaa1 || bbb > bbb1) ) || 
-                        ( (aaa < bbb1 || aaa< aaa1)  &&  bbb >= bbb1) ||
-                        (aaa == aaa1 && bbb == bbb1)
-                    )
-                    { $("#range_error").text("Внимание! Пересечение временных диапазонов с уже создаными промежутками.").fadeIn().fadeOut(3000); }
-                }
-
-                
+                $("#range_error").text("Ошибка! Укажите правильное время начала и окончания. Возможно Вы допустили пересечение диапазонов либо время старта больше чем окончания.").fadeIn();
             }
         }
     });
+
 
     $(wrapper).on("change", "#OneOrMore .radiooneormore", function () {
         var select = JSON.parse($(this).val());
